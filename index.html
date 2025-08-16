@@ -5,15 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="pageTitle">Pensions-Countdown</title>
   <link rel="manifest" href="manifest.json" />
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service Worker registered', reg))
-          .catch(err => console.error('Service Worker registration failed', err));
-      });
-    }
-  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -63,8 +54,34 @@
       border: 1px solid #ccc;
       margin: 0.5rem;
     }
+    select {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 25px;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      margin: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
     .settings {
       margin-bottom: 2rem;
+    }
+    .hourglass-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 80px;
+      height: 160px;
+      z-index: 1000;
+      transition: transform 1s ease-in-out;
+    }
+    .hourglass-container.flip {
+      transform: rotate(180deg);
+    }
+    .hourglass-img {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -74,9 +91,15 @@
     <input type="date" id="targetDate" />
     <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
     <input type="text" id="customTitle" placeholder="Titel eingeben" />
+    <select id="languagePicker">
+      <option value="de">Deutsch</option>
+      <option value="en">English</option>
+    </select>
   </div>
   <div class="countdown" id="countdown"></div>
-
+  <div class="hourglass-container" id="hourglass">
+    <img src="hourglass.gif" alt="Sanduhr" class="hourglass-img" />
+  </div>
   <script>
     const countdownDiv = document.getElementById('countdown');
     const dateInput = document.getElementById('targetDate');
@@ -84,37 +107,46 @@
     const titleInput = document.getElementById('customTitle');
     const titleElem = document.getElementById('title');
     const pageTitle = document.getElementById('pageTitle');
+    const languagePicker = document.getElementById('languagePicker');
+    const hourglass = document.getElementById('hourglass');
 
-    // Lade gespeicherte Werte
-    window.addEventListener('load', () => {
-      if (localStorage.getItem('targetDate')) {
-        dateInput.value = localStorage.getItem('targetDate');
-      } else {
-        dateInput.value = '2027-09-02';
+    const translations = {
+      de: {
+        title: 'Countdown bis zur Pensionierung',
+        labels: ['Jahre', 'Monate', 'Tage', 'Stunden', 'Minuten', 'Sekunden'],
+        done: '🎉 Es ist soweit! Glückliche Pensionierung! 🎉',
+        placeholder: 'Titel eingeben'
+      },
+      en: {
+        title: 'Countdown to Retirement',
+        labels: ['Years', 'Months', 'Days', 'Hours', 'Minutes', 'Seconds'],
+        done: "🎉 It's time! Happy Retirement! 🎉",
+        placeholder: 'Enter title'
       }
-      if (localStorage.getItem('bgColor')) {
-        document.body.style.background = localStorage.getItem('bgColor');
-        bgColorPicker.value = localStorage.getItem('bgColor');
-      }
-      if (localStorage.getItem('customTitle')) {
-        titleElem.textContent = localStorage.getItem('customTitle');
-        pageTitle.textContent = localStorage.getItem('customTitle');
-        titleInput.value = localStorage.getItem('customTitle');
-      }
-      updateCountdown();
-    });
+    };
+
+    let currentLang = localStorage.getItem('language') || 'de';
+    languagePicker.value = currentLang;
+    let lastSecond = null;
+
+    function translateUI() {
+      const t = translations[currentLang];
+      titleElem.textContent = localStorage.getItem('customTitle') || t.title;
+      pageTitle.textContent = localStorage.getItem('customTitle') || t.title;
+      titleInput.placeholder = t.placeholder;
+    }
 
     function updateCountdown() {
+      const t = translations[currentLang];
       const target = new Date(dateInput.value);
       const now = new Date();
 
       if (target <= now) {
-        countdownDiv.innerHTML = '<p>🎉 Es ist soweit! Glückliche Pensionierung! 🎉</p>';
+        countdownDiv.innerHTML = `<p>${t.done}</p>`;
         return;
       }
 
       let delta = target - now;
-
       const seconds = Math.floor(delta / 1000) % 60;
       const minutes = Math.floor(delta / (1000 * 60)) % 60;
       const hours = Math.floor(delta / (1000 * 60 * 60)) % 24;
@@ -135,13 +167,18 @@
       }
 
       countdownDiv.innerHTML = `
-        <div class="unit"><span>${years}</span>Jahre</div>
-        <div class="unit"><span>${months}</span>Monate</div>
-        <div class="unit"><span>${days}</span>Tage</div>
-        <div class="unit"><span>${hours}</span>Stunden</div>
-        <div class="unit"><span>${minutes}</span>Minuten</div>
-        <div class="unit"><span>${seconds}</span>Sekunden</div>
+        <div class="unit"><span>${years}</span>${t.labels[0]}</div>
+        <div class="unit"><span>${months}</span>${t.labels[1]}</div>
+        <div class="unit"><span>${days}</span>${t.labels[2]}</div>
+        <div class="unit"><span>${hours}</span>${t.labels[3]}</div>
+        <div class="unit"><span>${minutes}</span>${t.labels[4]}</div>
+        <div class="unit"><span>${seconds}</span>${t.labels[5]}</div>
       `;
+
+      if (seconds === 0) {
+        hourglass.classList.add('flip');
+        setTimeout(() => hourglass.classList.remove('flip'), 800);
+      }
     }
 
     bgColorPicker.addEventListener('input', (e) => {
@@ -151,7 +188,7 @@
     });
 
     titleInput.addEventListener('input', (e) => {
-      const title = e.target.value || 'Countdown bis zur Pensionierung';
+      const title = e.target.value || translations[currentLang].title;
       titleElem.textContent = title;
       pageTitle.textContent = title;
       localStorage.setItem('customTitle', title);
@@ -159,6 +196,32 @@
 
     dateInput.addEventListener('change', (e) => {
       localStorage.setItem('targetDate', e.target.value);
+      updateCountdown();
+    });
+
+    languagePicker.addEventListener('change', (e) => {
+      currentLang = e.target.value;
+      localStorage.setItem('language', currentLang);
+      translateUI();
+      updateCountdown();
+    });
+
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('targetDate')) {
+        dateInput.value = localStorage.getItem('targetDate');
+      } else {
+        dateInput.value = '2027-09-02';
+      }
+      if (localStorage.getItem('bgColor')) {
+        document.body.style.background = localStorage.getItem('bgColor');
+        bgColorPicker.value = localStorage.getItem('bgColor');
+      }
+      if (localStorage.getItem('customTitle')) {
+        titleElem.textContent = localStorage.getItem('customTitle');
+        pageTitle.textContent = localStorage.getItem('customTitle');
+        titleInput.value = localStorage.getItem('customTitle');
+      }
+      translateUI();
       updateCountdown();
     });
 
