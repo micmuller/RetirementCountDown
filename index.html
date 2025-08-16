@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Pensions-Countdown</title>
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker registered', reg))
+          .catch(err => console.error('Service Worker registration failed', err));
+      });
+    }
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg-color, linear-gradient(to bottom right, #e0f7fa, #80deea));
+      text-align: center;
+      padding: 2rem;
+      color: #004d40;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .countdown {
+      font-size: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .unit {
+      min-width: 100px;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .unit span {
+      display: block;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    input[type="date"], input[type="color"], input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Countdown bis zur Pensionierung</h1>
+  <div>
+    <input type="date" id="targetDate" value="2027-09-02" />
+    <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
+    <input type="text" id="customTitle" placeholder="Titel eingeben" />
+  </div>
+  <div class="countdown" id="countdown"></div>
+
+  <script>
+    const countdownDiv = document.getElementById('countdown');
+    const dateInput = document.getElementById('targetDate');
+    const bgColorPicker = document.getElementById('bgColorPicker');
+    const titleInput = document.getElementById('customTitle');
+    const titleElem = document.getElementById('title');
+    const pageTitle = document.getElementById('pageTitle');
+
+    function updateCountdown() {
+      const target = new Date(dateInput.value);
+      const now = new Date();
+
+      if (target <= now) {
+        countdownDiv.innerHTML = '<p>🎉 Es ist soweit! Glückliche Pensionierung! 🎉</p>';
+        return;
+      }
+
+      let delta = target - now;
+
+      const seconds = Math.floor(delta / 1000) % 60;
+      const minutes = Math.floor(delta / (1000 * 60)) % 60;
+      const hours = Math.floor(delta / (1000 * 60 * 60)) % 24;
+
+      const nowDate = new Date();
+      let years = target.getFullYear() - nowDate.getFullYear();
+      let months = target.getMonth() - nowDate.getMonth();
+      let days = target.getDate() - nowDate.getDate();
+
+      if (days < 0) {
+        months--;
+        const prevMonth = new Date(target.getFullYear(), target.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      countdownDiv.innerHTML = `
+        <div class="unit"><span>${years}</span>Jahre</div>
+        <div class="unit"><span>${months}</span>Monate</div>
+        <div class="unit"><span>${days}</span>Tage</div>
+        <div class="unit"><span>${hours}</span>Stunden</div>
+        <div class="unit"><span>${minutes}</span>Minuten</div>
+        <div class="unit"><span>${seconds}</span>Sekunden</div>
+      `;
+    }
+
+    bgColorPicker.addEventListener('input', (e) => {
+      document.body.style.background = e.target.value;
+    });
+
+    titleInput.addEventListener('input', (e) => {
+      titleElem.textContent = e.target.value || 'Countdown bis zur Pensionierung';
+      pageTitle.textContent = e.target.value || 'Pensions-Countdown';
+    });
+
+    setInterval(updateCountdown, 1000);
+    dateInput.addEventListener('change', updateCountdown);
+    updateCountdown();
+  </script>
+</body>
+</html>
