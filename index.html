@@ -21,10 +21,12 @@
       text-align: center;
       padding: 2rem;
       color: #004d40;
+      transition: background 1s ease;
     }
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     .countdown {
       font-size: 1.5rem;
@@ -32,13 +34,22 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 1rem;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .unit {
       min-width: 100px;
       padding: 1rem;
       background-color: white;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .unit:hover {
+      transform: scale(1.05);
     }
     .unit span {
       display: block;
@@ -52,12 +63,15 @@
       border: 1px solid #ccc;
       margin: 0.5rem;
     }
+    .settings {
+      margin-bottom: 2rem;
+    }
   </style>
 </head>
 <body>
   <h1 id="title">Countdown bis zur Pensionierung</h1>
-  <div>
-    <input type="date" id="targetDate" value="2027-09-02" />
+  <div class="settings">
+    <input type="date" id="targetDate" />
     <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
     <input type="text" id="customTitle" placeholder="Titel eingeben" />
   </div>
@@ -70,6 +84,25 @@
     const titleInput = document.getElementById('customTitle');
     const titleElem = document.getElementById('title');
     const pageTitle = document.getElementById('pageTitle');
+
+    // Lade gespeicherte Werte
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('targetDate')) {
+        dateInput.value = localStorage.getItem('targetDate');
+      } else {
+        dateInput.value = '2027-09-02';
+      }
+      if (localStorage.getItem('bgColor')) {
+        document.body.style.background = localStorage.getItem('bgColor');
+        bgColorPicker.value = localStorage.getItem('bgColor');
+      }
+      if (localStorage.getItem('customTitle')) {
+        titleElem.textContent = localStorage.getItem('customTitle');
+        pageTitle.textContent = localStorage.getItem('customTitle');
+        titleInput.value = localStorage.getItem('customTitle');
+      }
+      updateCountdown();
+    });
 
     function updateCountdown() {
       const target = new Date(dateInput.value);
@@ -112,17 +145,24 @@
     }
 
     bgColorPicker.addEventListener('input', (e) => {
-      document.body.style.background = e.target.value;
+      const color = e.target.value;
+      document.body.style.background = color;
+      localStorage.setItem('bgColor', color);
     });
 
     titleInput.addEventListener('input', (e) => {
-      titleElem.textContent = e.target.value || 'Countdown bis zur Pensionierung';
-      pageTitle.textContent = e.target.value || 'Pensions-Countdown';
+      const title = e.target.value || 'Countdown bis zur Pensionierung';
+      titleElem.textContent = title;
+      pageTitle.textContent = title;
+      localStorage.setItem('customTitle', title);
+    });
+
+    dateInput.addEventListener('change', (e) => {
+      localStorage.setItem('targetDate', e.target.value);
+      updateCountdown();
     });
 
     setInterval(updateCountdown, 1000);
-    dateInput.addEventListener('change', updateCountdown);
-    updateCountdown();
   </script>
 </body>
 </html>
