@@ -9,11 +9,12 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: var(--bg-color, rgba(224, 247, 250, 0.7));
+      background: rgba(224, 247, 250, 0.7);
       text-align: center;
       padding: 2rem;
       color: #004d40;
       transition: background 1s ease;
+      backdrop-filter: blur(4px);
     }
     h1 {
       font-size: 2rem;
@@ -112,7 +113,10 @@
       <option value="de">Deutsch</option>
       <option value="en">English</option>
     </select>
+    <button id="resetSettings">Reset</button>
   </div>
+  <input type="range" id="opacitySlider" min="0" max="100" value="70" title="Transparenz" />
+  <label for="opacitySlider">Transparenz</label>
   <div class="countdown" id="countdown"></div>
   <div class="chart-container">
     <canvas id="progressChart"></canvas>
@@ -267,6 +271,16 @@
     });
 
     window.addEventListener('load', () => {
+      const opacitySlider = document.getElementById('opacitySlider');
+      if (localStorage.getItem('opacity')) {
+        document.body.style.background = document.body.style.background.replace(/rgba\([^)]+\)/, `rgba(224, 247, 250, ${parseFloat(localStorage.getItem('opacity')) / 100})`);
+        opacitySlider.value = localStorage.getItem('opacity');
+      }
+      opacitySlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.body.style.background = `rgba(224, 247, 250, ${value / 100})`;
+        localStorage.setItem('opacity', value);
+      });
       if (localStorage.getItem('targetDate')) {
         dateInput.value = localStorage.getItem('targetDate');
       } else {
@@ -287,6 +301,16 @@
     });
 
     setInterval(updateCountdown, 1000);
+
+    document.getElementById('resetSettings').addEventListener('click', () => {
+      localStorage.removeItem('targetDate');
+      localStorage.removeItem('bgColor');
+      localStorage.removeItem('customTitle');
+      localStorage.removeItem('language');
+      localStorage.removeItem('opacity');
+      location.reload();
+    });
   </script>
 </body>
 </html>
+
