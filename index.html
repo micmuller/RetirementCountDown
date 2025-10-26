@@ -49,7 +49,7 @@
       font-size: 2rem;
       font-weight: bold;
     }
-    input[type="date"], input[type="color"], input[type="text"] {
+    input[type="date"], input[type="text"] {
       padding: 0.5rem;
       font-size: 1rem;
       border-radius: 5px;
@@ -57,19 +57,30 @@
       margin: 0.5rem;
       background-color: rgba(255,255,255,0.8);
     }
-    select {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      border-radius: 25px;
-      background: #ffffff;
-      border: 1px solid #ccc;
-      margin: 0.5rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      cursor: pointer;
+    /* Farbwähler ausblenden, Icons klickbar machen */
+    input[type="color"] {
+      display: none;
     }
     .settings {
       margin-bottom: 2rem;
     }
+    .color-icon {
+      font-size: 1.8rem;
+      cursor: pointer;
+      margin: 0 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 6px;
+      user-select: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .color-icon:hover { transform: scale(1.1); }
+    .color-icon:active { transform: scale(0.97); }
+
     .hourglass-container {
       position: fixed;
       bottom: 2rem;
@@ -106,8 +117,14 @@
   <h1 id="title">Countdown bis zur Pensionierung</h1>
   <div class="settings">
     <input type="date" id="targetDate" />
+
+    <!-- Icons statt sichtbarer Buttons/Inputs -->
+    <span id="bgColorIcon" class="color-icon" title="Hintergrundfarbe wählen" role="button" aria-label="Hintergrundfarbe wählen">🎨</span>
     <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
+
+    <span id="chartColorIcon" class="color-icon" title="Diagrammfarbe wählen" role="button" aria-label="Diagrammfarbe wählen">📊</span>
     <input type="color" id="chartColorPicker" title="Diagrammfarbe wählen" />
+
     <input type="text" id="customTitle" placeholder="Titel eingeben" />
     <select id="languagePicker">
       <option value="de">Deutsch</option>
@@ -115,16 +132,18 @@
     </select>
     <button id="resetSettings">Reset</button>
   </div>
-  <input type="range" id="opacitySlider" min="0" max="100" value="70" title="Transparenz" />
-  <label for="opacitySlider">Transparenz</label>
+
   <div class="countdown" id="countdown"></div>
+
   <div class="chart-container">
     <canvas id="progressChart"></canvas>
     <div id="chartLabel" class="chart-label"></div>
   </div>
+
   <div class="hourglass-container" id="hourglass">
     <img src="hourglass.gif" alt="Sanduhr" class="hourglass-img" />
   </div>
+
   <script>
     const countdownDiv = document.getElementById('countdown');
     const dateInput = document.getElementById('targetDate');
@@ -137,6 +156,14 @@
     const hourglass = document.getElementById('hourglass');
     const chartCanvas = document.getElementById('progressChart');
     const chartLabel = document.getElementById('chartLabel');
+
+    // Icon-Trigger für versteckte Farbwähler
+    document.addEventListener('DOMContentLoaded', () => {
+      const bgIcon = document.getElementById('bgColorIcon');
+      const chartIcon = document.getElementById('chartColorIcon');
+      bgIcon.addEventListener('click', () => bgColorPicker.click());
+      chartIcon.addEventListener('click', () => chartColorPicker.click());
+    });
 
     const translations = {
       de: {
@@ -214,7 +241,7 @@
 
       const maxDays = 730;
       const remainingDays = Math.floor(delta / (1000 * 60 * 60 * 24));
-      const usedDays = Math.min(maxDays, maxDays - remainingDays);
+      const usedDays = Math.min(maxDays, Math.max(0, maxDays - remainingDays));
       chart.data.datasets[0].data = [usedDays, maxDays - usedDays];
       chart.update();
       chartLabel.textContent = `Noch ${remainingDays} Tage`;
@@ -271,16 +298,6 @@
     });
 
     window.addEventListener('load', () => {
-      const opacitySlider = document.getElementById('opacitySlider');
-      if (localStorage.getItem('opacity')) {
-        document.body.style.background = document.body.style.background.replace(/rgba\([^)]+\)/, `rgba(224, 247, 250, ${parseFloat(localStorage.getItem('opacity')) / 100})`);
-        opacitySlider.value = localStorage.getItem('opacity');
-      }
-      opacitySlider.addEventListener('input', (e) => {
-        const value = e.target.value;
-        document.body.style.background = `rgba(224, 247, 250, ${value / 100})`;
-        localStorage.setItem('opacity', value);
-      });
       if (localStorage.getItem('targetDate')) {
         dateInput.value = localStorage.getItem('targetDate');
       } else {
@@ -307,10 +324,9 @@
       localStorage.removeItem('bgColor');
       localStorage.removeItem('customTitle');
       localStorage.removeItem('language');
-      localStorage.removeItem('opacity');
       location.reload();
     });
+
   </script>
 </body>
 </html>
-
