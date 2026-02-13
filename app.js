@@ -9,6 +9,10 @@ const languagePicker = document.getElementById('languagePicker');
 const hourglass = document.getElementById('hourglass');
 const chartCanvas = document.getElementById('progressChart');
 const chartLabel = document.getElementById('chartLabel');
+const menuToggle = document.getElementById('menuToggle');
+const menuClose = document.getElementById('menuClose');
+const settingsMenu = document.getElementById('settingsMenu');
+const menuBackdrop = document.getElementById('menuBackdrop');
 
 const APP_CONFIG = {
   defaultDate: '2027-09-02',
@@ -24,11 +28,15 @@ const translations = {
     placeholder: 'Titel eingeben',
     centerLabel: (days) => `Noch ${days} Tage`,
     ui: {
+      settings: 'Einstellungen',
+      settingsSubtitle: 'Passe Countdown, Farben und Sprache an.',
       targetDate: 'Zieldatum',
       customTitle: 'Eigener Titel',
       language: 'Sprache',
       colors: 'Farben',
-      reset: 'Reset'
+      reset: 'Reset',
+      openMenu: 'Menü öffnen',
+      closeMenu: 'Menü schließen'
     },
     chartLegend: ['Verstrichen', 'Übrig']
   },
@@ -40,11 +48,15 @@ const translations = {
     placeholder: 'Enter title',
     centerLabel: (days) => `${days} days left`,
     ui: {
+      settings: 'Settings',
+      settingsSubtitle: 'Adjust countdown, colors, and language.',
       targetDate: 'Target date',
       customTitle: 'Custom title',
       language: 'Language',
       colors: 'Colors',
-      reset: 'Reset'
+      reset: 'Reset',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu'
     },
     chartLegend: ['Elapsed', 'Remaining']
   }
@@ -60,6 +72,22 @@ function setText(id, text) {
   if (elem) elem.textContent = text;
 }
 
+function openMenu() {
+  settingsMenu.classList.add('open');
+  settingsMenu.setAttribute('aria-hidden', 'false');
+  menuBackdrop.hidden = false;
+  menuToggle.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('menu-open');
+}
+
+function closeMenu() {
+  settingsMenu.classList.remove('open');
+  settingsMenu.setAttribute('aria-hidden', 'true');
+  menuBackdrop.hidden = true;
+  menuToggle.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('menu-open');
+}
+
 function translateUI() {
   const t = translations[currentLang];
   const customTitle = localStorage.getItem('customTitle') || t.title;
@@ -69,11 +97,16 @@ function translateUI() {
   titleInput.placeholder = t.placeholder;
 
   setText('subtitle', t.subtitle);
+  setText('settingsTitle', t.ui.settings);
+  setText('settingsSubtitle', t.ui.settingsSubtitle);
   setText('targetDateLabel', t.ui.targetDate);
   setText('customTitleLabel', t.ui.customTitle);
   setText('languageLabel', t.ui.language);
   setText('colorLabel', t.ui.colors);
   setText('resetSettings', t.ui.reset);
+
+  menuToggle.setAttribute('aria-label', t.ui.openMenu);
+  menuClose.setAttribute('aria-label', t.ui.closeMenu);
 
   if (chart) {
     chart.data.labels = t.chartLegend;
@@ -172,6 +205,13 @@ function createChart() {
 }
 
 function bindEvents() {
+  menuToggle.addEventListener('click', openMenu);
+  menuClose.addEventListener('click', closeMenu);
+  menuBackdrop.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
   document.getElementById('bgColorIcon').addEventListener('click', () => bgColorPicker.click());
   document.getElementById('chartColorIcon').addEventListener('click', () => chartColorPicker.click());
 
