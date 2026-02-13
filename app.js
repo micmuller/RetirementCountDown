@@ -216,8 +216,11 @@ function bindEvents() {
   document.getElementById('chartColorIcon').addEventListener('click', () => chartColorPicker.click());
 
   chartColorPicker.addEventListener('input', () => {
+    const color = chartColorPicker.value;
+    localStorage.setItem('chartColor', color);
+
     if (!chart) return;
-    chart.data.datasets[0].backgroundColor[0] = chartColorPicker.value;
+    chart.data.datasets[0].backgroundColor[0] = color;
     chart.update();
   });
 
@@ -249,6 +252,7 @@ function bindEvents() {
   document.getElementById('resetSettings').addEventListener('click', () => {
     localStorage.removeItem('targetDate');
     localStorage.removeItem('bgColor');
+    localStorage.removeItem('chartColor');
     localStorage.removeItem('customTitle');
     localStorage.removeItem('language');
     location.reload();
@@ -267,6 +271,11 @@ function restoreState() {
   const customTitle = localStorage.getItem('customTitle');
   if (customTitle) {
     titleInput.value = customTitle;
+  }
+
+  const chartColor = localStorage.getItem('chartColor');
+  if (chartColor) {
+    chartColorPicker.value = chartColor;
   }
 }
 
