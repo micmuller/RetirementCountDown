@@ -10,48 +10,56 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <button id="menuToggle" class="hamburger-btn" aria-label="Menü öffnen" aria-controls="settingsMenu" aria-expanded="false">☰</button>
+  <div id="menuBackdrop" class="menu-backdrop" hidden></div>
+
+  <aside id="settingsMenu" class="settings-drawer" aria-label="Einstellungen" aria-hidden="true">
+    <div class="drawer-header">
+      <h2 id="settingsTitle">Einstellungen</h2>
+      <button id="menuClose" class="icon-close" aria-label="Menü schließen">✕</button>
+    </div>
+
+    <div class="settings-grid">
+      <label class="field">
+        <span id="targetDateLabel">Zieldatum</span>
+        <input type="date" id="targetDate" />
+      </label>
+
+      <label class="field">
+        <span id="customTitleLabel">Eigener Titel</span>
+        <input type="text" id="customTitle" placeholder="Titel eingeben" />
+      </label>
+
+      <label class="field">
+        <span id="languageLabel">Sprache</span>
+        <select id="languagePicker">
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+
+      <div class="field color-tools" role="group" aria-label="Farben">
+        <span id="colorLabel">Farben</span>
+        <div class="icon-row">
+          <button id="bgColorIcon" class="icon-btn" title="Hintergrundfarbe wählen" aria-label="Hintergrundfarbe wählen">🎨</button>
+          <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
+
+          <button id="chartColorIcon" class="icon-btn" title="Diagrammfarbe wählen" aria-label="Diagrammfarbe wählen">📊</button>
+          <input type="color" id="chartColorPicker" title="Diagrammfarbe wählen" />
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-actions">
+      <button id="resetSettings" class="btn-secondary">Reset</button>
+    </div>
+  </aside>
+
   <main class="app-shell">
     <header class="header">
       <h1 id="title">Countdown bis zur Pensionierung</h1>
       <p class="subtitle" id="subtitle">Visualisiere deine verbleibende Zeit bis zur Pensionierung.</p>
     </header>
-
-    <section class="card settings" aria-label="Einstellungen">
-      <div class="settings-grid">
-        <label class="field">
-          <span id="targetDateLabel">Zieldatum</span>
-          <input type="date" id="targetDate" />
-        </label>
-
-        <label class="field field-title">
-          <span id="customTitleLabel">Eigener Titel</span>
-          <input type="text" id="customTitle" placeholder="Titel eingeben" />
-        </label>
-
-        <label class="field">
-          <span id="languageLabel">Sprache</span>
-          <select id="languagePicker">
-            <option value="de">Deutsch</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-
-        <div class="field color-tools" role="group" aria-label="Farben">
-          <span id="colorLabel">Farben</span>
-          <div class="icon-row">
-            <button id="bgColorIcon" class="icon-btn" title="Hintergrundfarbe wählen" aria-label="Hintergrundfarbe wählen">🎨</button>
-            <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
-
-            <button id="chartColorIcon" class="icon-btn" title="Diagrammfarbe wählen" aria-label="Diagrammfarbe wählen">📊</button>
-            <input type="color" id="chartColorPicker" title="Diagrammfarbe wählen" />
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-actions">
-        <button id="resetSettings" class="btn-secondary">Reset</button>
-      </div>
-    </section>
 
     <section class="card">
       <div class="countdown" id="countdown" aria-live="polite"></div>
