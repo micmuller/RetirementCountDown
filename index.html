@@ -5,328 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="pageTitle">Pensions-Countdown</title>
   <link rel="manifest" href="manifest.json" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: rgba(224, 247, 250, 0.7);
-      text-align: center;
-      padding: 2rem;
-      color: #004d40;
-      transition: background 1s ease;
-      backdrop-filter: blur(4px);
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-    .countdown {
-      font-size: 1.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      animation: fadeIn 1s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .unit {
-      min-width: 100px;
-      padding: 1rem;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
-    .unit:hover {
-      transform: scale(1.05);
-    }
-    .unit span {
-      display: block;
-      font-size: 2rem;
-      font-weight: bold;
-    }
-    input[type="date"], input[type="text"] {
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      margin: 0.5rem;
-      background-color: rgba(255,255,255,0.8);
-    }
-    /* Farbwähler ausblenden, Icons klickbar machen */
-    input[type="color"] {
-      display: none;
-    }
-    .settings {
-      margin-bottom: 2rem;
-    }
-    .color-icon {
-      font-size: 1.8rem;
-      cursor: pointer;
-      margin: 0 0.5rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.2rem;
-      height: 2.2rem;
-      border-radius: 6px;
-      user-select: none;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .color-icon:hover { transform: scale(1.1); }
-    .color-icon:active { transform: scale(0.97); }
-
-    .hourglass-container {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 80px;
-      height: 160px;
-      z-index: 1000;
-      transition: transform 1s ease-in-out;
-    }
-    .hourglass-container.flip {
-      transform: rotate(180deg);
-    }
-    .hourglass-img {
-      width: 100%;
-      height: 100%;
-    }
-    .chart-container {
-      max-width: 250px;
-      margin: 2rem auto;
-      position: relative;
-    }
-    .chart-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2rem;
-      font-weight: bold;
-      pointer-events: none;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="app.js" defer></script>
 </head>
 <body>
-  <h1 id="title">Countdown bis zur Pensionierung</h1>
-  <div class="settings">
-    <input type="date" id="targetDate" />
+  <main class="app-shell">
+    <header class="header">
+      <h1 id="title">Countdown bis zur Pensionierung</h1>
+      <p class="subtitle" id="subtitle">Visualisiere deine verbleibende Zeit bis zur Pensionierung.</p>
+    </header>
 
-    <!-- Icons statt sichtbarer Buttons/Inputs -->
-    <span id="bgColorIcon" class="color-icon" title="Hintergrundfarbe wählen" role="button" aria-label="Hintergrundfarbe wählen">🎨</span>
-    <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
+    <section class="card settings" aria-label="Einstellungen">
+      <div class="settings-grid">
+        <label class="field">
+          <span id="targetDateLabel">Zieldatum</span>
+          <input type="date" id="targetDate" />
+        </label>
 
-    <span id="chartColorIcon" class="color-icon" title="Diagrammfarbe wählen" role="button" aria-label="Diagrammfarbe wählen">📊</span>
-    <input type="color" id="chartColorPicker" title="Diagrammfarbe wählen" />
+        <label class="field field-title">
+          <span id="customTitleLabel">Eigener Titel</span>
+          <input type="text" id="customTitle" placeholder="Titel eingeben" />
+        </label>
 
-    <input type="text" id="customTitle" placeholder="Titel eingeben" />
-    <select id="languagePicker">
-      <option value="de">Deutsch</option>
-      <option value="en">English</option>
-    </select>
-    <button id="resetSettings">Reset</button>
-  </div>
+        <label class="field">
+          <span id="languageLabel">Sprache</span>
+          <select id="languagePicker">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </label>
 
-  <div class="countdown" id="countdown"></div>
+        <div class="field color-tools" role="group" aria-label="Farben">
+          <span id="colorLabel">Farben</span>
+          <div class="icon-row">
+            <button id="bgColorIcon" class="icon-btn" title="Hintergrundfarbe wählen" aria-label="Hintergrundfarbe wählen">🎨</button>
+            <input type="color" id="bgColorPicker" title="Hintergrundfarbe wählen" />
 
-  <div class="chart-container">
-    <canvas id="progressChart"></canvas>
-    <div id="chartLabel" class="chart-label"></div>
-  </div>
+            <button id="chartColorIcon" class="icon-btn" title="Diagrammfarbe wählen" aria-label="Diagrammfarbe wählen">📊</button>
+            <input type="color" id="chartColorPicker" title="Diagrammfarbe wählen" />
+          </div>
+        </div>
+      </div>
 
-  <div class="hourglass-container" id="hourglass">
+      <div class="settings-actions">
+        <button id="resetSettings" class="btn-secondary">Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="countdown" id="countdown" aria-live="polite"></div>
+    </section>
+
+    <section class="card chart-card">
+      <div class="chart-container">
+        <canvas id="progressChart"></canvas>
+        <div id="chartLabel" class="chart-label"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="hourglass-container" id="hourglass" aria-hidden="true">
     <img src="hourglass.gif" alt="Sanduhr" class="hourglass-img" />
   </div>
-
-  <script>
-    const countdownDiv = document.getElementById('countdown');
-    const dateInput = document.getElementById('targetDate');
-    const bgColorPicker = document.getElementById('bgColorPicker');
-    const chartColorPicker = document.getElementById('chartColorPicker');
-    const titleInput = document.getElementById('customTitle');
-    const titleElem = document.getElementById('title');
-    const pageTitle = document.getElementById('pageTitle');
-    const languagePicker = document.getElementById('languagePicker');
-    const hourglass = document.getElementById('hourglass');
-    const chartCanvas = document.getElementById('progressChart');
-    const chartLabel = document.getElementById('chartLabel');
-
-    // Icon-Trigger für versteckte Farbwähler
-    document.addEventListener('DOMContentLoaded', () => {
-      const bgIcon = document.getElementById('bgColorIcon');
-      const chartIcon = document.getElementById('chartColorIcon');
-      bgIcon.addEventListener('click', () => bgColorPicker.click());
-      chartIcon.addEventListener('click', () => chartColorPicker.click());
-    });
-
-    const translations = {
-      de: {
-        title: 'Countdown bis zur Pensionierung',
-        labels: ['Jahre', 'Monate', 'Tage', 'Stunden', 'Minuten', 'Sekunden'],
-        done: '🎉 Es ist soweit! Glückliche Pensionierung! 🎉',
-        placeholder: 'Titel eingeben'
-      },
-      en: {
-        title: 'Countdown to Retirement',
-        labels: ['Years', 'Months', 'Days', 'Hours', 'Minutes', 'Seconds'],
-        done: "🎉 It's time! Happy Retirement! 🎉",
-        placeholder: 'Enter title'
-      }
-    };
-
-    let currentLang = localStorage.getItem('language') || 'de';
-    languagePicker.value = currentLang;
-
-    let chart;
-
-    function translateUI() {
-      const t = translations[currentLang];
-      titleElem.textContent = localStorage.getItem('customTitle') || t.title;
-      pageTitle.textContent = localStorage.getItem('customTitle') || t.title;
-      titleInput.placeholder = t.placeholder;
-    }
-
-    function updateCountdown() {
-      const t = translations[currentLang];
-      const target = new Date(dateInput.value);
-      const now = new Date();
-
-      if (target <= now) {
-        countdownDiv.innerHTML = `<p>${t.done}</p>`;
-        if (chart) chart.data.datasets[0].data = [0, 100];
-        chart.update();
-        chartLabel.textContent = '';
-        return;
-      }
-
-      let delta = target - now;
-      const seconds = Math.floor(delta / 1000) % 60;
-      const minutes = Math.floor(delta / (1000 * 60)) % 60;
-      const hours = Math.floor(delta / (1000 * 60 * 60)) % 24;
-
-      const nowDate = new Date();
-      let years = target.getFullYear() - nowDate.getFullYear();
-      let months = target.getMonth() - nowDate.getMonth();
-      let days = target.getDate() - nowDate.getDate();
-
-      if (days < 0) {
-        months--;
-        const prevMonth = new Date(target.getFullYear(), target.getMonth(), 0);
-        days += prevMonth.getDate();
-      }
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
-
-      countdownDiv.innerHTML = `
-        <div class="unit"><span>${years}</span>${t.labels[0]}</div>
-        <div class="unit"><span>${months}</span>${t.labels[1]}</div>
-        <div class="unit"><span>${days}</span>${t.labels[2]}</div>
-        <div class="unit"><span>${hours}</span>${t.labels[3]}</div>
-        <div class="unit"><span>${minutes}</span>${t.labels[4]}</div>
-        <div class="unit"><span>${seconds}</span>${t.labels[5]}</div>
-      `;
-
-      if (seconds === 0) {
-        hourglass.classList.add('flip');
-        setTimeout(() => hourglass.classList.remove('flip'), 800);
-      }
-
-      const maxDays = 730;
-      const remainingDays = Math.floor(delta / (1000 * 60 * 60 * 24));
-      const usedDays = Math.min(maxDays, Math.max(0, maxDays - remainingDays));
-      chart.data.datasets[0].data = [usedDays, maxDays - usedDays];
-      chart.update();
-      chartLabel.textContent = `Noch ${remainingDays} Tage`;
-    }
-
-    function createChart() {
-      chart = new Chart(chartCanvas, {
-        type: 'doughnut',
-        data: {
-          labels: ['Verstrichen', 'Übrig'],
-          datasets: [{
-            data: [0, 730],
-            backgroundColor: [chartColorPicker.value || '#ff9800', '#eeeeee'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          cutout: '60%',
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-    }
-
-    chartColorPicker.addEventListener('input', () => {
-      chart.data.datasets[0].backgroundColor[0] = chartColorPicker.value;
-      chart.update();
-    });
-
-    bgColorPicker.addEventListener('input', (e) => {
-      const color = e.target.value;
-      document.body.style.background = color;
-      localStorage.setItem('bgColor', color);
-    });
-
-    titleInput.addEventListener('input', (e) => {
-      const title = e.target.value || translations[currentLang].title;
-      titleElem.textContent = title;
-      pageTitle.textContent = title;
-      localStorage.setItem('customTitle', title);
-    });
-
-    dateInput.addEventListener('change', (e) => {
-      localStorage.setItem('targetDate', e.target.value);
-      updateCountdown();
-    });
-
-    languagePicker.addEventListener('change', (e) => {
-      currentLang = e.target.value;
-      localStorage.setItem('language', currentLang);
-      translateUI();
-      updateCountdown();
-    });
-
-    window.addEventListener('load', () => {
-      if (localStorage.getItem('targetDate')) {
-        dateInput.value = localStorage.getItem('targetDate');
-      } else {
-        dateInput.value = '2027-09-02';
-      }
-      if (localStorage.getItem('bgColor')) {
-        document.body.style.background = localStorage.getItem('bgColor');
-        bgColorPicker.value = localStorage.getItem('bgColor');
-      }
-      if (localStorage.getItem('customTitle')) {
-        titleElem.textContent = localStorage.getItem('customTitle');
-        pageTitle.textContent = localStorage.getItem('customTitle');
-        titleInput.value = localStorage.getItem('customTitle');
-      }
-      translateUI();
-      createChart();
-      updateCountdown();
-    });
-
-    setInterval(updateCountdown, 1000);
-
-    document.getElementById('resetSettings').addEventListener('click', () => {
-      localStorage.removeItem('targetDate');
-      localStorage.removeItem('bgColor');
-      localStorage.removeItem('customTitle');
-      localStorage.removeItem('language');
-      location.reload();
-    });
-
-  </script>
 </body>
 </html>
