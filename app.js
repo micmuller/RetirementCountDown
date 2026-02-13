@@ -230,6 +230,16 @@ function restoreState() {
   }
 }
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
+
 window.addEventListener('load', () => {
   restoreState();
   bindEvents();
@@ -238,3 +248,5 @@ window.addEventListener('load', () => {
   updateCountdown();
   setInterval(updateCountdown, 1000);
 });
+
+registerServiceWorker();
