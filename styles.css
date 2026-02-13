@@ -17,6 +17,10 @@ body {
   transition: background 250ms ease;
 }
 
+body.menu-open {
+  overflow: hidden;
+}
+
 .app-shell {
   max-width: 980px;
   margin: 0 auto;
@@ -27,14 +31,26 @@ body {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border: 1px solid #bfd2cf;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
   font-size: 1.4rem;
+  line-height: 1;
   cursor: pointer;
   z-index: 1200;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.hamburger-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.hamburger-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .menu-backdrop {
@@ -50,12 +66,12 @@ body {
   left: 0;
   height: 100vh;
   width: min(92vw, 360px);
-  background: #f9fffe;
+  background: linear-gradient(180deg, #f9fffe 0%, #f1fbf9 100%);
   border-right: 1px solid #d6e7e4;
   padding: 1rem;
   box-shadow: 12px 0 28px rgba(0, 0, 0, 0.2);
   transform: translateX(-105%);
-  transition: transform 200ms ease;
+  transition: transform 220ms ease;
   z-index: 1150;
   overflow-y: auto;
 }
@@ -74,6 +90,12 @@ body {
 .drawer-header h2 {
   margin: 0;
   font-size: 1.2rem;
+}
+
+.drawer-subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: var(--muted);
 }
 
 .icon-close {
@@ -114,6 +136,13 @@ h1 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.9rem;
+}
+
+.field {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #e2ecea;
+  border-radius: 12px;
+  padding: 0.6rem;
 }
 
 .field {

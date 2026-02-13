@@ -29,6 +29,7 @@ const translations = {
     centerLabel: (days) => `Noch ${days} Tage`,
     ui: {
       settings: 'Einstellungen',
+      settingsSubtitle: 'Passe Countdown, Farben und Sprache an.',
       targetDate: 'Zieldatum',
       customTitle: 'Eigener Titel',
       language: 'Sprache',
@@ -48,6 +49,7 @@ const translations = {
     centerLabel: (days) => `${days} days left`,
     ui: {
       settings: 'Settings',
+      settingsSubtitle: 'Adjust countdown, colors, and language.',
       targetDate: 'Target date',
       customTitle: 'Custom title',
       language: 'Language',
@@ -75,6 +77,7 @@ function openMenu() {
   settingsMenu.setAttribute('aria-hidden', 'false');
   menuBackdrop.hidden = false;
   menuToggle.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('menu-open');
 }
 
 function closeMenu() {
@@ -82,6 +85,7 @@ function closeMenu() {
   settingsMenu.setAttribute('aria-hidden', 'true');
   menuBackdrop.hidden = true;
   menuToggle.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('menu-open');
 }
 
 function translateUI() {
@@ -94,6 +98,7 @@ function translateUI() {
 
   setText('subtitle', t.subtitle);
   setText('settingsTitle', t.ui.settings);
+  setText('settingsSubtitle', t.ui.settingsSubtitle);
   setText('targetDateLabel', t.ui.targetDate);
   setText('customTitleLabel', t.ui.customTitle);
   setText('languageLabel', t.ui.language);
