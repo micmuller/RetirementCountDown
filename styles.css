@@ -1,0 +1,191 @@
+:root {
+  --bg: linear-gradient(160deg, #e0f7fa 0%, #f8ffff 100%);
+  --text: #073b33;
+  --card: rgba(255, 255, 255, 0.8);
+  --border: rgba(0, 77, 64, 0.18);
+  --accent: #ff9800;
+  --muted: #6b7b78;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--bg);
+  transition: background 250ms ease;
+}
+
+.app-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.field-title {
+  grid-column: span 2;
+}
+
+input[type="date"],
+input[type="text"],
+select,
+button {
+  width: 100%;
+  padding: 0.62rem 0.72rem;
+  border-radius: 10px;
+  border: 1px solid #bfd2cf;
+  font-size: 1rem;
+  background: #fff;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid #0e8d79;
+  outline-offset: 2px;
+}
+
+.icon-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+input[type="color"] {
+  display: none;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #bfd2cf;
+  cursor: pointer;
+  font-size: 1.25rem;
+  background: #fff;
+  transition: transform 120ms ease;
+}
+
+.icon-btn:hover { transform: scale(1.05); }
+.icon-btn:active { transform: scale(0.98); }
+
+.settings-actions {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-secondary {
+  width: auto;
+  cursor: pointer;
+}
+
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.unit {
+  padding: 0.8rem;
+  background: #fff;
+  border: 1px solid #e2ecea;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.unit span {
+  display: block;
+  font-size: clamp(1.4rem, 3.8vw, 2rem);
+  font-weight: 700;
+}
+
+.done {
+  font-size: 1.05rem;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.chart-card { display: flex; justify-content: center; }
+
+.chart-container {
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.chart-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hourglass-container {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  width: 66px;
+  height: 130px;
+  transition: transform 700ms ease-in-out;
+}
+
+.hourglass-container.flip {
+  transform: rotate(180deg);
+}
+
+.hourglass-img {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .field-title { grid-column: span 1; }
+  .hourglass-container { opacity: 0.9; width: 52px; height: 102px; }
+}
